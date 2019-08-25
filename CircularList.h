@@ -20,15 +20,21 @@ public:
         std::lock_guard<std::mutex> guard(memory_mutex);
         DataType *p = nullptr;
         size_t    i = 0;
+        bool found  = false;
 
         for (; i < indexMap.size(); i++)
         {
             if (!indexMap.test(i))
             {
                 indexMap.set(i);
-                p = (DataType *)(&storage[i * sizeof(Node)]);
+                p     = (DataType *)(&storage[i * sizeof(Node)]);
+                found = true;
                 break;
             }
+        }
+        if (!found)
+        {
+            return nullptr;
         }
 
         size_t count = 1;
@@ -87,7 +93,7 @@ public:
                 }
                 else
                 {
-                    std::logic_error("Error deallocating");
+                    std::runtime_error("Error deallocating");
                 }
             }
             else
@@ -127,7 +133,7 @@ public:
 
         if (new_node == nullptr)
         {
-            return;
+            throw std::overflow_error("Storage full, cannot push");
         }
 
         new_node->value = value;
@@ -157,7 +163,7 @@ public:
     {
         if (last == nullptr)
         {
-            throw std::logic_error("Nothing to pop");
+            throw std::underflow_error("Nothing to pop");
         }
         else if (last == last->next)
         {
@@ -186,7 +192,7 @@ public:
     {
         if (last == nullptr)
         {
-            throw std::logic_error("Nothing to pop");
+            throw std::underflow_error("Nothing to pop");
         }
         else if (last == last->next)
         {
@@ -223,6 +229,8 @@ public:
 
     void print()
     {
+        std::cout << "List: ";
+
         if (last == nullptr)
         {
             std::cout << std::endl;
