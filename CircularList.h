@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <stdexcept>
+#include <mutex>
 
 template<typename DataType>
 struct ListNode
@@ -16,6 +17,7 @@ class ListAllocator
 public:
     DataType* allocate(size_t size)
     {
+        std::lock_guard<std::mutex> guard(memory_mutex);
         DataType *p = nullptr;
         size_t    i = 0;
 
@@ -61,6 +63,7 @@ public:
 
     void deallocate(Node *p, size_t n)
     {
+        std::lock_guard<std::mutex> guard(memory_mutex);
         size_t i = 0;
 
         for (; i < indexMap.size(); i++)
@@ -99,6 +102,7 @@ private:
     static constexpr size_t maxElem             = (MAX_DATA_SIZE / sizeof(Node));
     unsigned char storage[MAX_DATA_SIZE];
     static std::bitset<maxElem> indexMap;
+    std::mutex memory_mutex;
 };
 
 template<typename DataType, typename Allocator = ListAllocator<DataType> >
