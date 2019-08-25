@@ -15,12 +15,66 @@ class ListAllocator
     typedef ListNode<DataType> Node;
 
 public:
-    DataType* allocate(size_t size)
+    DataType* allocate(const size_t& size)
     {
         std::lock_guard<std::mutex> guard(memory_mutex);
         DataType *p = nullptr;
         size_t    i = 0;
         bool found  = false;
+
+        while ((p == nullptr && found) || i < size)
+        {
+            p = allocate(i, size, found);
+        }
+
+        return p;
+    }
+
+    void deallocate()
+    {
+        // TODO: implement
+    }
+
+    void deallocate(const Node *p, const size_t& n)
+    {
+        std::lock_guard<std::mutex> guard(memory_mutex);
+        size_t i = 0;
+
+        for (; i < indexMap.size(); i++)
+        {
+            if (p == ((Node *)(&storage) + i))
+            {
+                indexMap.reset(i);
+                break;
+            }
+        }
+
+        size_t count = 1;
+        for (size_t j = i + 1; j < indexMap.size(); ++j)
+        {
+            if (count < n)
+            {
+                if (indexMap.test(j))
+                {
+                    indexMap.reset(j);
+                    ++count;
+                }
+                else
+                {
+                    std::runtime_error("Error deallocating");
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+private:
+    DataType* allocate(size_t& i, const size_t& size, bool& found)
+    {
+        DataType *p = nullptr;
 
         for (; i < indexMap.size(); i++)
         {
@@ -62,47 +116,6 @@ public:
         return p;
     }
 
-    void deallocate()
-    {
-        // TODO: implement
-    }
-
-    void deallocate(Node *p, size_t n)
-    {
-        std::lock_guard<std::mutex> guard(memory_mutex);
-        size_t i = 0;
-
-        for (; i < indexMap.size(); i++)
-        {
-            if (p == ((Node *)(&storage) + i))
-            {
-                indexMap.reset(i);
-                break;
-            }
-        }
-
-        size_t count = 1;
-        for (size_t j = i + 1; j < indexMap.size(); ++j)
-        {
-            if (count < n)
-            {
-                if (indexMap.test(j))
-                {
-                    indexMap.reset(j);
-                    ++count;
-                }
-                else
-                {
-                    std::runtime_error("Error deallocating");
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-
 private:
     static constexpr unsigned int MAX_DATA_SIZE = 2048;
     static constexpr size_t maxElem             = (MAX_DATA_SIZE / sizeof(Node));
@@ -114,8 +127,6 @@ private:
 template<typename DataType, typename Allocator = ListAllocator<DataType> >
 class CircularList
 {
-    // TODO: implement CircularList
-
 public:
     typedef ListNode<DataType> Node;
 
