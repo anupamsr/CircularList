@@ -155,6 +155,13 @@ public:
         {
             throw std::logic_error("Nothing to pop");
         }
+        else if (last == last->next)
+        {
+            DataType value = last->value;
+            allocator.deallocate(last, 1);
+            last = nullptr;
+            return value;
+        }
 
         Node *new_last = last->next;
         while (new_last->next != last)
@@ -176,6 +183,13 @@ public:
         if (last == nullptr)
         {
             throw std::logic_error("Nothing to pop");
+        }
+        else if (last == last->next)
+        {
+            DataType value = last->value;
+            allocator.deallocate(last, 1);
+            last = nullptr;
+            return value;
         }
 
         Node *new_head = last->next->next;
