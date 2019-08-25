@@ -17,11 +17,12 @@ int main()
         unsigned long num = dist(rng);
         std::cout << "Push back : " << num << std::endl;
         firstIntList.push_back(num);
-
-        // num = dist(rng);
+        num = dist(rng);
         std::cout << "Push front : " << num << std::endl;
         firstIntList.push_front(num);
     }
+
+    firstIntList.print();
     for (size_t i = 0; i < MAX_ELEMENTS; ++i)
     {
         std::cout << "Pop back : " << firstIntList.pop_back() << std::endl;

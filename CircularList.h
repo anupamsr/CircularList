@@ -1,3 +1,4 @@
+#include <iostream>
 #include <bitset>
 #include <stdexcept>
 
@@ -13,8 +14,6 @@ class ListAllocator
     typedef ListNode<DataType> Node;
 
 public:
-    template<class T>
-    using rebind = ListAllocator<T>;
     DataType* allocate(size_t size)
     {
         DataType *p = nullptr;
@@ -25,7 +24,7 @@ public:
             if (!indexMap.test(i))
             {
                 indexMap.set(i);
-                p = ((DataType *)(&storage) + i);
+                p = (DataType *)(&storage[i * sizeof(Node)]);
                 break;
             }
         }
@@ -60,13 +59,13 @@ public:
         // TODO: implement
     }
 
-    void deallocate(DataType *p, size_t n)
+    void deallocate(Node *p, size_t n)
     {
         size_t i = 0;
 
         for (; i < indexMap.size(); i++)
         {
-            if (p == ((DataType *)(&storage) + i))
+            if (p == ((Node *)(&storage) + i))
             {
                 indexMap.reset(i);
                 break;
@@ -120,8 +119,8 @@ public:
     // Adds new element to the beginning of the list
     void push_front(DataType value)
     {
-        typename Allocator::template rebind<Node> nodeAllocator;
-        Node *new_node = nodeAllocator.allocate(1);
+        auto *new_node = (Node *)allocator.allocate(1);
+
         if (new_node == nullptr)
         {
             return;
@@ -163,10 +162,9 @@ public:
             new_last = new_last->next;
         }
 
-        Node *head = last->next;
-        typename Allocator::template rebind<Node> nodeAllocator;
+        Node *head     = last->next;
         DataType value = last->value;
-        nodeAllocator.deallocate(last, 1);
+        allocator.deallocate(last, 1);
         new_last->next = head;
         last           = new_last;
         return value;
@@ -181,9 +179,8 @@ public:
         }
 
         Node *new_head = last->next->next;
-        typename Allocator::template rebind<Node> nodeAllocator;
         DataType value = last->next->value;
-        nodeAllocator.deallocate(last->next, 1);
+        allocator.deallocate(last->next, 1);
         last->next = new_head;
         return value;
     }
@@ -206,6 +203,24 @@ public:
         return count;
     }
 
+    void print()
+    {
+        if (last == nullptr)
+        {
+            std::cout << std::endl;
+            return;
+        }
+
+        Node *p = last->next;
+        while (p != last)
+        {
+            std::cout << p->value << ", ";
+            p = p->next;
+        }
+
+        std::cout << p->value << std::endl;
+    }
+
 private:
     static Allocator allocator;
     Node *last = nullptr;
@@ -213,3 +228,5 @@ private:
 
 template<typename DataType>
 std::bitset<ListAllocator<DataType>::maxElem> ListAllocator<DataType>::indexMap;
+template<typename DataType, typename Allocator>
+Allocator CircularList<DataType, Allocator>::allocator;
