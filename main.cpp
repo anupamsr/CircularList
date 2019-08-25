@@ -22,73 +22,108 @@ static constexpr size_t MAX_ELEMENTS = 200;
 int main()
 {
     CircularList<char> charList;
-    CircularList<unsigned long> ulList;
+    CircularList<unsigned long> ulList_1;
+    CircularList<unsigned long> ulList_2;
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist_int(0, 100);
     std::uniform_int_distribution<std::mt19937::result_type> dist_char(0, 127 - 33);
-    auto push_front = [&](const int& thread_num) {
-                          for (size_t i = 0; i < MAX_ELEMENTS; ++i)
-                          {
-                              try
-                              {
-                                  auto value   = dist_int(rng);
-                                  auto message = "Push front : " + std::to_string(value);
-                                  print_message(thread_num, message, false);
-                                  ulList.push_front(value);
-                              }
-                              catch (std::exception& e)
-                              {
-                                  print_message(thread_num, e.what(), true);
-                                  break;
-                              }
-                          }
-                      };
-    auto push_back = [&](const int& thread_num) {
-                         for (size_t i = 0; i < MAX_ELEMENTS; ++i)
-                         {
-                             try
-                             {
-                                 auto value   = dist_int(rng);
-                                 auto message = "Push back : " + std::to_string(value);
-                                 print_message(thread_num, message, false);
-                                 ulList.push_back(value);
-                             }
-                             catch (std::exception& e)
-                             {
-                                 print_message(thread_num, e.what(), true);
-                                 break;
-                             }
-                         }
-                     };
-    auto pop_front = [&](const int& thread_num) {
-                         try
-                         {
-                             for (size_t i = 0; i < MAX_ELEMENTS; ++i)
-                             {
-                                 auto message = "Pop front : " + std::to_string(ulList.pop_front());
-                                 print_message(thread_num, message, false);
-                             }
-                         }
-                         catch (std::exception& e)
-                         {
-                             print_message(thread_num, e.what(), true);
-                         }
-                     };
-    auto pop_back = [&](const int& thread_num) {
-                        try
-                        {
+    auto push_front_1 = [&](const int& thread_num) {
                             for (size_t i = 0; i < MAX_ELEMENTS; ++i)
                             {
-                                auto message = "Pop back : " + std::to_string(ulList.pop_back());
-                                print_message(thread_num, message, false);
+                                try
+                                {
+                                    auto value   = dist_int(rng);
+                                    auto message = "Push front : " + std::to_string(value);
+                                    print_message(thread_num, message, false);
+                                    ulList_1.push_front(value);
+                                }
+                                catch (std::exception& e)
+                                {
+                                    print_message(thread_num, e.what(), true);
+                                    break;
+                                }
                             }
-                        }
-                        catch (std::exception& e)
-                        {
-                            print_message(thread_num, e.what(), true);
-                        }
-                    };
+                        };
+    auto push_front_2 = [&](const int& thread_num) {
+                            for (size_t i = 0; i < MAX_ELEMENTS; ++i)
+                            {
+                                try
+                                {
+                                    auto value   = dist_int(rng);
+                                    auto message = "Push front : " + std::to_string(value);
+                                    print_message(thread_num, message, false);
+                                    ulList_2.push_front(value);
+                                }
+                                catch (std::exception& e)
+                                {
+                                    print_message(thread_num, e.what(), true);
+                                    break;
+                                }
+                            }
+                        };
+    auto push_back_1 = [&](const int& thread_num) {
+                           for (size_t i = 0; i < MAX_ELEMENTS; ++i)
+                           {
+                               try
+                               {
+                                   auto value   = dist_int(rng);
+                                   auto message = "Push back : " + std::to_string(value);
+                                   print_message(thread_num, message, false);
+                                   ulList_1.push_back(value);
+                               }
+                               catch (std::exception& e)
+                               {
+                                   print_message(thread_num, e.what(), true);
+                                   break;
+                               }
+                           }
+                       };
+    auto push_back_2 = [&](const int& thread_num) {
+                           for (size_t i = 0; i < MAX_ELEMENTS; ++i)
+                           {
+                               try
+                               {
+                                   auto value   = dist_int(rng);
+                                   auto message = "Push back : " + std::to_string(value);
+                                   print_message(thread_num, message, false);
+                                   ulList_2.push_back(value);
+                               }
+                               catch (std::exception& e)
+                               {
+                                   print_message(thread_num, e.what(), true);
+                                   break;
+                               }
+                           }
+                       };
+    auto pop_front_1 = [&](const int& thread_num) {
+                           try
+                           {
+                               for (size_t i = 0; i < MAX_ELEMENTS; ++i)
+                               {
+                                   auto message = "Pop front : " + std::to_string(ulList_1.pop_front());
+                                   print_message(thread_num, message, false);
+                               }
+                           }
+                           catch (std::exception& e)
+                           {
+                               print_message(thread_num, e.what(), true);
+                           }
+                       };
+    auto pop_back_1 = [&](const int& thread_num) {
+                          try
+                          {
+                              for (size_t i = 0; i < MAX_ELEMENTS; ++i)
+                              {
+                                  auto message = "Pop back : " + std::to_string(ulList_1.pop_back());
+                                  print_message(thread_num, message, false);
+                              }
+                          }
+                          catch (std::exception& e)
+                          {
+                              print_message(thread_num, e.what(), true);
+                          }
+                      };
     auto push_front_char = [&](const int& thread_num) {
                                for (size_t i = 0; i < MAX_ELEMENTS; ++i)
                                {
@@ -124,22 +159,28 @@ int main()
                               }
                           };
     std::thread th1(push_back_char, 1);
-    std::thread th2(push_back, 2);
-    std::thread th3(push_front, 3);
+    std::thread th2(push_back_1, 2);
+    std::thread th3(push_front_1, 3);
     std::thread th4(push_front_char, 4);
+    std::thread th5(pop_back_1, 5);
+    std::thread th6(pop_front_1, 6);
+    std::thread th7(push_back_2, 7);
+    std::thread th8(push_front_2, 8);
 
     th1.join();
     th2.join();
     th3.join();
     th4.join();
-    ulList.print();
-    std::cout << "Size: " << ulList.size() << std::endl;
+    th7.join();
+    th8.join();
+    ulList_1.print();
+    std::cout << "Size: " << ulList_1.size() << std::endl;
+    ulList_2.print();
+    std::cout << "Size: " << ulList_2.size() << std::endl;
     charList.print();
     std::cout << "Size: " << charList.size() << std::endl;
-    std::thread th5(pop_back, 5);
-    std::thread th6(pop_front, 6);
     th5.join();
     th6.join();
-    ulList.print();
+    ulList_1.print();
     return 0;
 }
