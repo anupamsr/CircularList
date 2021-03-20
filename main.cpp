@@ -3,7 +3,9 @@
 #include <iostream>
 #include <thread>
 
+static constexpr size_t MAX_ELEMENTS = 200;
 static std::mutex stdout_mutex;
+
 void print_message(const int& thread_num, const std::string& message, const bool isError)
 {
     std::lock_guard<std::mutex> guard(stdout_mutex);
@@ -18,7 +20,6 @@ void print_message(const int& thread_num, const std::string& message, const bool
     }
 }
 
-static constexpr size_t MAX_ELEMENTS = 200;
 int main()
 {
     CircularList<char> charList;
